@@ -64,8 +64,8 @@ class MultiAgentEnv(gym.Env):
             else:
                 self.action_space.append(total_action_space[0])
             # observation space
-            obs_dim = len(observation_callback(agent, self.world))
-            self.observation_space.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(obs_dim,), dtype=np.float32))
+            obs_dim = observation_callback(agent, self.world).shape
+            self.observation_space.append(spaces.Box(low=-np.inf, high=+np.inf, shape=obs_dim, dtype=np.float32))
             agent.action.c = np.zeros(self.world.dim_c)
 
         # rendering
@@ -257,9 +257,9 @@ class MultiAgentEnv(gym.Env):
             for e, entity in enumerate(self.world.entities):
                 self.render_geoms_xform[e].set_translation(*entity.state.p_pos)
             # render to display or array
-            results.append(self.viewers[i].render(return_rgb_array = mode=='rgb_array'))
+            results.append(self.viewers[i].render(return_rgb_array = True))
 
-        return results
+        return np.concatenate(results)
 
     # create receptor field locations in local coordinate frame
     def _make_receptor_locations(self, agent):
